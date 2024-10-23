@@ -15,7 +15,8 @@ ipCHATv4 is a simple chat application that allows users to send and receive mess
 
 - Python 3.x
 - `pip` (Python package installer)
-
+- `flask` (Python web framework)
+  
 ### Steps to Install
 
 1. Clone this repository:
