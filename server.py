@@ -1,4 +1,5 @@
-from flask import Flask, request, jsonify
+import os
+from flask import Flask, request, jsonify, send_from_directory
 
 app = Flask(__name__)
 latest_message = None  
@@ -19,6 +20,27 @@ def get_latest_message():
         return jsonify({"latest_message": latest_message}), 200
     return jsonify({"latest_message": "No messages yet"}), 200
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+UPLOAD_FOLDER = './uploads'
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
 
+@app.route('/files', methods=['GET'])
+def list_files():
+    files = os.listdir(UPLOAD_FOLDER)
+    return jsonify({'files': files}), 200
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part in the request'}), 400
+    
+    file = request.files['file']
+    file.save(os.path.join(UPLOAD_FOLDER, file.filename))
+    return jsonify({'message': f'File {file.filename} uploaded successfully'}), 200
+
+@app.route('/download/<filename>', methods=['GET'])
+def download_file(filename):
+    return send_from_directory(UPLOAD_FOLDER, filename, as_attachment=True)
+
+if __name__ == '__main__':
+    app.run(debug=True)
