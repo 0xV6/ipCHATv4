@@ -3,7 +3,7 @@ import threading
 import time
 import os
 
-SERVER_URL = 'URL_OF_YOUR_SERVER'  
+SERVER_URL = 'URL OF YOUR SERVER'  
 
 DOWNLOAD_DIR = r'C:\ipCHATv4' 
 if not os.path.exists(DOWNLOAD_DIR):
@@ -56,7 +56,7 @@ def check_for_new_file():
 
                 for file in files:
                     if file not in downloaded_files:
-                        
+                       
                         file_response = requests.get(f"{SERVER_URL}/download/{file}")
                         if file_response.status_code == 200:
                             with open(os.path.join(DOWNLOAD_DIR, file), "wb") as filee:
@@ -71,21 +71,8 @@ def check_for_new_file():
         except requests.exceptions.RequestException as e:
             print(f"Error while checking for new files: {e}")
 
-        time.sleep(1)  
+        time.sleep(2)  
 
-def verify(user_input, path="user_db.txt"):
-    global final_username
-    username, password = user_input.split()
-    with open(path, "r") as f:
-        for line in f:
-            userr, pswdr = line.strip().split(":")
-            if userr == username and pswdr == password:
-                print("Login successful")
-                final_username = username
-                return True
-            
-    print("Login failed")
-    return False
 
 def upload_file():
     path_of_file = input("Enter the path of the file to be uploaded: ")
@@ -119,24 +106,32 @@ def download_file(filename):
     else:
         print("Failed to retrieve file list.")
 
-if __name__ == '__main__':
-    ask1 = input("REGISTER OR LOGIN\n")
 
-    if ask1.lower() == "register":
-        user_input = input("Enter username and password using space between them: ")
-        userr, pswdr = user_input.split()
-        with open("user_db.txt", "a") as f:
-            f.write(f"{userr}:{pswdr}\n")
 
-    elif ask1.lower() == "login":
-        user_input = input("Enter username and password using space between them: ")
-        userr, pswdr = user_input.split()
 
-        if verify(user_input):
+def main():
+    global final_username
+    print("Please log in through the website to start chatting.")
+
+    while True:
+        input("Press Enter after logging in through the website...")  
+        
+        
+        final_username = input("Enter your username : ")
+
+        
+        response = requests.get(f"{SERVER_URL}/check_login", params={"username": final_username})
+        if response.status_code == 200:
+            print("Login verified. You can start chatting.")
             threading.Thread(target=check_for_new_message, daemon=True).start()
-            threading.Thread(target=check_for_new_file, daemon=True).start()
             send_message()
+            break
+        
+        elif response.status_code == 401:
+            print("Invalid username or session expired. Please log in again.")
+
         else:
-            print("You need to register first before logging in.")
-    else:
-        print("Invalid input")
+            print("unexpected error occurred")
+
+if __name__ == '__main__':
+    main()
