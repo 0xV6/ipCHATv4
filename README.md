@@ -5,8 +5,6 @@ ipCHATv4 is a simple chat application that allows users to send and receive mess
 ## Features
 
 - **User Registration and Login**: Users can register and log in using their credentials.
-- **Message Sending**: Users can send messages to each other.
-- **Real-time Messaging**: Users receive the latest message only if they did not send it.
 - **Cross-Platform**: The application runs on Windows, Linux, and MacOS and Android(using Termux).
 
 ## Installation
